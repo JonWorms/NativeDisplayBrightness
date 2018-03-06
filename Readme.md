@@ -4,7 +4,7 @@
 
 ![native brightness UI](https://raw.githubusercontent.com/Bensge/NativeDisplayBrightness/master/nativeUI.png)
 
-This a utility application to control monitor brightness with the F1, F2 keys. It utilizes DDC/CI, but this app doesn't have the freezing issues that similar aplications tend to suffer from.
+This a utility application to control monitor brightness with the F14, F15 keys. It utilizes DDC/CI, but this app doesn't have the freezing issues that similar aplications tend to suffer from.
 
 This app also shows the **native** system UI when changing brightness! It uses the private `BezelServices` framework for this.
 

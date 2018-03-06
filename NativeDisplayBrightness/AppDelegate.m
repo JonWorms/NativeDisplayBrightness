@@ -11,6 +11,11 @@
 #import "BezelServices.h"
 #import "OSD.h"
 #include <dlfcn.h>
+
+
+#define kVK_BUP kVK_F15
+#define kVK_BDOWN kVK_F14
+
 @import Carbon;
 
 #pragma mark - constants
@@ -45,7 +50,7 @@ CGEventRef keyboardCGEventCallback(CGEventTapProxy proxy,
     if (type == NX_KEYDOWN || type == NX_KEYUP || type == NX_FLAGSCHANGED)
     {
         int64_t keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
-        if (keyCode == kVK_F2 || keyCode == kVK_F1)
+        if (keyCode == kVK_BDOWN || keyCode == kVK_BUP)
         {
             return NULL;
         }
@@ -104,7 +109,7 @@ CGEventRef keyboardCGEventCallback(CGEventTapProxy proxy,
 {
     [NSEvent addGlobalMonitorForEventsMatchingMask:NSEventMaskKeyDown | NSEventMaskKeyUp handler:^(NSEvent *_Nonnull event) {
         //NSLog(@"event!!");
-        if (event.keyCode == kVK_F1)
+        if (event.keyCode == kVK_BDOWN)
         {
             if (event.type == NSEventTypeKeyDown)
             {
@@ -113,7 +118,7 @@ CGEventRef keyboardCGEventCallback(CGEventTapProxy proxy,
                 });
             }
         }
-        else if (event.keyCode == kVK_F2)
+        else if (event.keyCode == kVK_BUP)
         {
             if (event.type == NSEventTypeKeyDown)
             {
