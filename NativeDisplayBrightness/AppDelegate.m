@@ -59,11 +59,13 @@ CGEventRef keyboardCGEventCallback(CGEventTapProxy proxy,
 
 @property (weak) IBOutlet NSWindow *window;
 @property (nonatomic) float brightness;
-@property (strong, nonatomic) dispatch_source_t signalHandlerSource;
+@property (strong, nonatomic) dispatch_source_t signalHandlerSource;\
+@property (nonatomic) dispatch_group_t ddc_dispatch_group;
 @end
 
 @implementation AppDelegate
 @synthesize brightness=_brightness;
+@synthesize ddc_dispatch_group=_ddc_dispatch_group;
 
 - (BOOL)_loadBezelServices
 {
@@ -156,6 +158,9 @@ CGEventRef keyboardCGEventCallback(CGEventTapProxy proxy,
     {
         [self _loadOSDFramework];
     }
+    
+    _ddc_dispatch_group = dispatch_group_create();
+    
     [self _configureLoginItem];
     [self _checkTrusted];
     [self _registerGlobalKeyboardEvents];
@@ -214,14 +219,18 @@ void shutdownSignalHandler(int signal)
         [[NSClassFromString(@"OSDManager") sharedManager] showImage:OSDGraphicBacklight onDisplayID:CGSMainDisplayID() priority:OSDPriorityDefault msecUntilFade:1000 filledChiclets:value/brightnessStep totalChiclets:100.f/brightnessStep locked:NO];
     }
     
+    dispatch_queue_t ddc_queue = dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0);
+    
     for (NSScreen *screen in NSScreen.screens) {
         NSDictionary *description = [screen deviceDescription];
         if ([description objectForKey:@"NSDeviceIsScreen"]) {
             CGDirectDisplayID screenNumber = [[description objectForKey:@"NSScreenNumber"] unsignedIntValue];
-            
-            set_control(screenNumber, BRIGHTNESS, value);
+            dispatch_group_async(_ddc_dispatch_group, ddc_queue, ^{
+                set_control(screenNumber, BRIGHTNESS, value);
+            });
         }
     }
+    dispatch_group_wait(_ddc_dispatch_group, DISPATCH_TIME_FOREVER);
 }
 
 - (float)brightness
